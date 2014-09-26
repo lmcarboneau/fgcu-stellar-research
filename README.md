@@ -11,17 +11,17 @@ Since this is a code base repo, the code contained here does not need to be inst
 
 Manifest
 =========
-README.md
+README.md 
 
 
 Contact
 ========
-Research Mentor:
-Dr. Derek Buzasi
-Whitaker Center Eminent Scholar
-Florida Gulf Coast University
+Research Mentor:  
+Dr. Derek Buzasi  
+Whitaker Center Eminent Scholar   
+Florida Gulf Coast University   
 Fort Myers, Florida
 
-Office:(239)590-1285
+Office: (239) 590-1285  
 dbuzasi@fgcu.edu
 
