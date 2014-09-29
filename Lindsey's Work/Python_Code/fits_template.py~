@@ -1,0 +1,13 @@
+"""
+    Name: fits_template.py
+    
+    Python code for doing stuff with FITS files. Handy for opening files
+    
+"""
+import sys, argparse              # import some useful tools, including
+                                                # command line argument parsing
+from astropy.io import fits	# import the I/O funtions relevant to FITS file
+
+parser = argparse.ArgumentParser()
+parser.add_argument("infile", help="File to be used. Must be a valid .fits target.")
+args = parser.parse_args() 
