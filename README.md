@@ -12,6 +12,8 @@ Since this is a code base repo, the code contained here does not need to be inst
 Manifest
 =========
 README.md 
+Carly's Work (folder)
+Lindsey's Work (folder)
 
 
 Contact
