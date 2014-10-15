@@ -38,8 +38,8 @@ def writeToFile(fileName):
     for row in FullArr:
         writer.writerow(row)
 
-KOIArr = reader('C:/Users/Carly/Documents/fgcu-stellar-research/Carly\'s Work/Cooler Stars Work/KOITargets.csv')
-FullArr = reader('C:/Users/Carly/Documents/fgcu-stellar-research/Carly\'s Work/Cooler Stars Work/CoolerStarsTargetList.csv')
+FullArr = reader('C:/Users/cahessler3098/Documents/fgcu-stellar-research/Carly\'s Work/Cooler Stars Work/RemoveKOIs/InitialKOIList.csv')
+KOIArr = reader('C:/Users/cahessler3098/Documents/fgcu-stellar-research/Carly\'s Work/Cooler Stars Work/KOITargets.csv')
 
 temp = len(FullArr)
 print(len(FullArr))
