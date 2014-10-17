@@ -1,39 +1,3 @@
-#
-#   VizieR Astronomical Server vizier.u-strasbg.fr
-#    Date: 2014-10-17T13:55:00 [V1.99+ (14-Oct-2013)]
-#   In case of problem, please report to:	cds-question@unistra.fr
-#
-#
-#Coosys	J2000:	eq_FK5 J2000
-#INFO	votable-version=1.99+ (14-Oct-2013)	
-#INFO	-ref=VIZ54411f35b3e1	
-#INFO	-out.max=unlimited	
-#INFO	queryParameters=13	
-#-oc.form=sexa
-#-out.max=unlimited
-#-nav=cat:J/ApJS/211/2&tab:{J/ApJS/211/2/catalog}&key:source=J/ApJS/211/2/catalog&HTTPPRM:&
-#-c.eq=J2000
-#-c.r=  2
-#-c.u=arcmin
-#-c.geom=r
-#-source=J/ApJS/211/2/catalog
-#-order=I
-#-out=KIC
-#log(g)=>3.5
-#[Fe/H]=>-0.3&<0.3
-#Teff1=>5400&<5677
-#
-
-#RESOURCE=yCat_22110002
-#Name: J/ApJS/211/2
-#Title: Revised stellar properties of Q1-16 Kepler targets (Huber+, 2014)
-#Table	J_ApJS_211_2_catalog:
-#Name: J/ApJS/211/2/catalog
-#Title: Stellar properties of Kepler quarters Q1-16 observations {\em(tables 4 and 5)}
-#Column	KIC	(I8)	Kepler Input Catalog identifier	[ucd=meta.id;meta.main]
-KIC
-
---------
   757099
   892195
   893286
@@ -16054,4 +16018,3 @@ KIC
 12934557
 12984183
 12984214
-

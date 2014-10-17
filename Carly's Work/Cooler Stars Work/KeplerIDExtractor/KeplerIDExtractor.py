@@ -26,16 +26,7 @@ def writeToFile(fileName):
         writer.writerow(row)
 
 np.set_printoptions(threshold='nan')
-reader('C:/Users/Carly/PycharmProjects/KeplerIDExtractor/asu.tsv')
+reader('C:/Users/cahessler3098/Downloads/fgcu-stellar-research/Carly\'s Work/Cooler Stars Work/KeplerIDExtractor/asu.tsv')
 print(len(keplerList))
-print
-# not entirely sure how they got in but there were empty lines
-'''del(starList[2460])
-del(starList[2836])
-del(starList[3070])
-del(starList[3080])
-del(starList[3684])
-del(starList[3929])'''
-#TODO: Re-code such that the empty lines are thrown out
 
-writeToFile('theIDs.csv')
+writeToFile('KIDs.csv')
