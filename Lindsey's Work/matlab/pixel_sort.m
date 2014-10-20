@@ -5,18 +5,19 @@ fitsdata = fitsread(file,'binarytable');
 time = fitsdata{1}; % data time stamp - is this actually useful?
 data = fitsdata{5}; % calibrated pixel flux
 qual = fitsdata{10}; % qualitly flag
+cnum = fitsdata{3}; % cadence number, for dealing w/ campaign 0's safe mode
 
-[apdim,n] = size(data); % apdim -> number of images
+[apdim,n] = size(data); %#ok<NASGU> % apdim -> number of images
  dim = fitsinfo(file);
  dim = dim.Image.Size;  % dim(1) x dim(2) -> size of total image
 
-% TODO: add handler for non-square images (check tdim)
-
 
 % remove images where the quality is flagged non-zero or is bad in general
-% TODO: Make separate array to hold removed/changed/specific data?
-rem_rows = [];
-for i = apdim:-1:1
+% TODO: Change to remove all data from before safe mode! C#0 sp.
+ind = find(cnum==89347); % get the index of the first good cadence
+rem_rows = [1:ind];
+
+for i = apdim:-1:ind
     if (qual(i) ~= 0)
         rem_rows = [rem_rows,i];
         
@@ -26,7 +27,9 @@ for i = apdim:-1:1
     end
 end
 
-[data,ps] = removerows(data,'ind',rem_rows);
+[data] = removerows(data,'ind',rem_rows);
+[time] = removerows(time,'ind',rem_rows);
+[cnum] = removerows(cnum,'ind',rem_rows);
 [apdim,n] = size(data); 
 % because the matrix had 'bad' data removed
 % apdim will change, but n shouldn't. If there's a difference, that's bad
@@ -138,9 +141,9 @@ while (loop_count < n)
     
 end
 
-ms = input('Enter the maximum mask size to check: ');
+masksize = 20; %input('Enter the maximum mask size to check: ') <- auto now
 % temp = zeros(1,n);
-aperture = zeros(ms,apdim);
+aperture = zeros(masksize,apdim);
 % Possibly misguided atempt to do things: 
 % for x = 1:apdim
 %     for a = 1:200
@@ -157,16 +160,64 @@ for i = 1:apdim
     aperture(1,i) = series(mask_grow(1,2),mask_grow(1,3),i);
 end
 
-for a = 2:ms
+for a = 2:masksize
     for b = 1:apdim
         aperture(a,b) = aperture((a-1),b) + series(mask_grow(a,2),mask_grow(a,3),b);
     end
 end
 
 
-std_dev = zeros(1,ms);
-for i = 1:ms
+std_dev = zeros(1,masksize);
+for i = 1:masksize
     std_dev(1,i) = std(aperture(i,:));
     std_dev(1,i) = std_dev(1,i) / aperture(i,1);
 end
-semilogx(std_dev);
+
+% semilogx(std_dev);  % don't really need to see it every time
+
+
+% 
+% count = 1;
+% while count < masksize 
+%     if std_dev(count) < std_dev(count + 1)
+%         masksize = count;
+%     else
+%         count = count + 1;
+%     end
+% end
+fix = 1:1:masksize;
+temp = polyval(std_dev,fix);
+temp = polyfit(fix,temp,2);
+fix = polyval(temp,fix);
+[temp,masksize] = min(fix);
+
+xcentroid = zeros(apdim,1);
+ycentroid = zeros(apdim,1);
+xifi = zeros(masksize,1);
+yifi = zeros(masksize,1);
+
+for i = 1:apdim
+    %put stuff here
+    for j = 1:masksize
+        pixdata = mask_grow(j,1); % the value of that pixel
+        xifi(j) = mask_grow(j,2) * pixdata;
+        yifi(j) = mask_grow(j,3) * pixdata;
+    end
+    tempx = sum(xifi);
+    tempy = sum(yifi);
+    xcentroid(i) = tempx / aperture(masksize,i);
+    ycentroid(i) = tempy / aperture(masksize,i);
+end
+
+output_data = [cnum,time,aperture(masksize,:)',xcentroid,ycentroid];
+filename = strrep(file,'_lpd-targ.fits','');
+filename = strrep(filename,'ktwo','pipeout_ktwo');
+dlmwrite(filename,['cadence  time    flux   xcent   ycent'],'delimiter','');
+dlmwrite(filename,output_data,'-append','delimiter','\t','newline','unix');
+
+figure(1)
+plot(xcentroid,ycentroid,'r');
+figure(2)
+plot(time,xcentroid,'b');
+hold on;
+plot(time,ycentroid,'g');
