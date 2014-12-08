@@ -1,22 +1,21 @@
 format long
 
- file = input('EPIC number: ','s');
+% file = input('EPIC number: ','s');
 folder = input('Default folder is Nov_K2OI. Is this correct? (y/n) ','s');
 if (folder == 'n') | (folder == 'N')
     folder = input('Please specify correct folder name/path: ','s');
 else
     folder = '/home/lindsey/kplrfits/Nov_K2OI';
+    %folder = '/home/derek/K2 test/Lindsey/Aarhus meeting/Code';
 end
-
 % uncommenting allows multiple files to be run at once, but 
 % file = strcat(folder,file); 
 
-% kplrfiles = dir(folder);
-%for fileNum = 3:(length(kplrfiles) - 1)
+kplrfiles = dir(folder);
+for fileNum = 3:(length(kplrfiles) - 1)
     
-    %file = kplrfiles(fileNum).name;
-    file = strcat(folder,'/ktwo',file,'-c00_lpd-targ.fits');
-    
+    file = kplrfiles(fileNum).name;
+    file = strcat(folder,'/',file);
     
     fitsdata = fitsread(file,'binarytable');
     time = fitsdata{1}; % data time stamp - is this actually useful?
@@ -30,7 +29,7 @@ end
     
     
     % remove images where the quality is flagged non-zero or is bad in general
-    % TODO: Change to remove all data from before safe mode! C#0 sp.
+    % Remember: Changed to remove all data from before safe mode! C#0 sp.
     ind = find(cnum==89347); % get the index of the first good cadence
     rem_rows = [1:ind];
     
@@ -44,28 +43,21 @@ end
         end
     end
     
-    [data] = removerows(data,'ind',rem_rows);
-    [time] = removerows(time,'ind',rem_rows);
-    [cnum] = removerows(cnum,'ind',rem_rows);
+    data(rem_rows,:)=[];
+    time(rem_rows,:)=[];
+    cnum(rem_rows,:)=[];
+    
+    %[data] = removerows(data,'ind',rem_rows);
+    %[time] = removerows(time,'ind',rem_rows);
+    %[cnum] = removerows(cnum,'ind',rem_rows);
     [apdim,n] = size(data);
     % because the matrix had 'bad' data removed
     % apdim will change, but n shouldn't. If there's a difference, that's bad
-    % TODO: Deal with that case with error handler?
-    
-    
-    % Old way for dealing with background, doesn't actually work for reasons
-    % temp = data;
-    % bkg = zeros(1,apdim);
-    % for i = 1:apdim
-    %     bkg(1,i) = min(temp(i,:));
-    %     temp(i,:) = temp(i,:) - bkg(1,i);
-    % end
-    
+
     series = zeros(dim(1),dim(2),apdim);
     for i = 1:apdim
         series(:,:,i) = reshape(data(i,:),dim(1),dim(2));
     end
-    
     
     mean_image = zeros(dim(1),dim(2));
     % create mean image from average of 'series'
@@ -77,8 +69,6 @@ end
             end
         end
     end
-    
-    
     
     count_sort = zeros(n,3);
     count = 1;
@@ -94,32 +84,60 @@ end
     count_sort = sortrows(count_sort,1);
     count_sort = flipdim(count_sort,1);
     
-    bkg_msize = 4;      % background 'mask' size, for using more than one pixel
-    bkg = zeros(bkg_msize,apdim);
-    i = n;
-    while (count_sort(i) == 0) | isnan(count_sort(i,1))
-        i = i - 1;
-    end
+%     bkg_msize = 4;      % background 'mask' size, for using more than one pixel
+%     bkg = zeros(bkg_msize,apdim);
+%     i = n;
+%     while (count_sort(i) == 0) | isnan(count_sort(i,1))
+%         i = i - 1;
+%     end
+%     
+%     for j = 1:bkg_msize
+%         for count = 1:apdim
+%             bkg(j,count) = series(count_sort(i,2),count_sort(i,3),count);
+%         end
+%         i = i - 1;
+%     end
+%     
+%     for count = 1:apdim
+%         bkg(1,count) = mean(bkg(:,count));
+%         series(:,:,count) = series(:,:,count) - bkg(1,count);
+%     end
     
-    for j = 1:bkg_msize
-        for count = 1:apdim
-            bkg(j,count) = series(count_sort(i,2),count_sort(i,3),count);
+    bkg = [];
+    temp = [];
+    count = 1;
+    
+    for i = 1:apdim             % for every image
+        for j = 1:n             % for all the pixels
+            if ~(data(i,j) == 0 | isnan(data(i,j)))
+                % if data actually exists
+                temp(1,count) = data(i,j);
+                count = count + 1;
+                % save it
+            end
         end
-        i = i - 1;
+        % store the mode as background
+        bkg(1,i) = mode(temp);
+        % reset variables for next sweep
+        temp = [];
+        count = 1;
     end
     
     for count = 1:apdim
-        bkg(1,count) = mean(bkg(:,count));
+        % remove background from series 
         series(:,:,count) = series(:,:,count) - bkg(1,count);
     end
     
-    % figure;
-    % semilogx(count_sort(:,1));
-    % figure;
-    % imagesc(mean_image);
-    % figure;
-    % imagesc(series(:,:,1));
-    
+    %mean_image = zeros(dim(1),dim(2));
+    %% create mean image from average of 'series'
+    %for i = 1:dim(1)
+    %    for j = 1:dim(2)
+    %        mean_image(i,j) = mean(series(i,j,:));
+    %        if isnan(mean_image(i,j))
+    %            mean_image(i,j) = 0;
+    %        end
+    %    end
+    %end
     
     % grow by adjacent
     mask_grow = zeros(n,3);  % space for storing pixels by brightest adj
@@ -177,8 +195,7 @@ end
         
     end
     
-    masksize = 200; %input('Enter the maximum mask size to check: ') <- auto now
-    % TODO: figure out why the parabola fitting makes this number matter!
+    masksize = 200; % just a baseline to start with
     
     % temp = zeros(1,n);
     aperture = zeros(masksize,apdim);
@@ -213,28 +230,39 @@ end
     
     % Find masksize
     % build a matrix full of the ratios for every mask 1 to 100
+    %f = [3:0.01:5];
+    %f = [10:0.01:12];
+    %f = [50:0.01:52];
+    fom = ones(100,3);
     maskfind = zeros(100,1);
+   for u = 1:3 
+       qu = [3,10,50];
+       f = [qu(u):0.01:(qu(u)+2)];
     for i = 100:-1:1
         maskfind(i) = std(aperture(i,:))/mean(aperture(i,:));
+        X = dft(time,aperture(i,:)./mean(aperture(i,:)),f);
+        fom(i,u) = mean(abs(X));
     end
+   end
     % build a table to hold minimums to check - possible good masks
     % initialized to ones to search for minimums later
-    temp = ones(20,2);
-    count = 1;
-    for i = 99:-1:2
-        if (maskfind(i) < maskfind(i+1)) && (maskfind(i) < maskfind(i-1))
-            temp(count,:) = [maskfind(i),i];
-            count = count + 1;
-            % keep this from breaking in a messy way with strange targets
-            if count > 20
-                break;
-            end
-        end
-    end
+%     temp = ones(20,2);
+%     count = 1;
+%     for i = 99:-1:2
+%         if (maskfind(i) < maskfind(i+1)) && (maskfind(i) < maskfind(i-1))
+%             temp(count,:) = [maskfind(i),i];
+%             count = count + 1;
+%             % keep this from breaking in a messy way with strange targets
+%             if count > 20
+%                 break;
+%             end
+%         end
+%     end
     % find the minimum, that's the mask size
-    [val,masksize] = min(temp(:,1));
-    masksize = temp(masksize,2);
-    
+   for i = 1:3 
+    [masksize(i,1),masksize(i,2)] = min(fom(:,i));    
+   end
+   masksize = max(masksize(:,2));
     
     xcentroid = zeros(apdim,1);
     ycentroid = zeros(apdim,1);
@@ -255,16 +283,24 @@ end
     end
     
     % all sorts of things, now in .txt form!
+%     
+%     output_data = [time'; aperture(masksize,:);bkg(1,:); xcentroid'; ycentroid';];
+%     filename = strrep(file,'_lpd-targ.fits','');
+%     filename = strrep(filename,'ktwo','outputs/pipeout_ktwo');
     
-    output_data = [time'; aperture(masksize,:);bkg(1,:); xcentroid'; ycentroid';];
-    filename = strrep(file,'_lpd-targ.fits','');
-    filename = strrep(filename,'ktwo','/outputs/pipeout_ktwo');
-    
-    ID = fopen(filename,'w');
-    fprintf(ID,'%s %s:%d %s:%d %s %s\n','Time','Flux - Mask',masksize,'Background',bkg_msize,'X Cent','Y Cent');
-    fprintf(ID,'%8.4f %f %f %f %f\n',output_data);
-    fclose(ID);
-    
+%     ID = fopen(filename,'w');
+%     fprintf(ID,'%s %s:%d %s:%d %s %s\n','Time','Flux-Mask',masksize,'Background',bkg_msize,'XCent','YCent');
+%     fprintf(ID,'%8.4f %f %f %f %f\n',output_data);
+%     fclose(ID);
+% 
+%     ID = fopen(filename,'w');
+%     fprintf(ID,'%s %s %s %s %s\n','Time','Flux-Mask','Background','XCent','YCent');
+%     fprintf(ID,'%8.4f %f %f %f %f\n',output_data);
+%     fclose(ID);
+
+    figure()
+    plot(time,aperture(masksize,:),'color','b')
+
     %
     % figure(1)
     % plot(xcentroid,ycentroid,'.r');
@@ -273,4 +309,4 @@ end
     % hold on;
     % plot(time,ycentroid,'g');
     % hold off;
-%end
+end

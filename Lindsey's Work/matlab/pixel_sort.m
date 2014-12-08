@@ -57,6 +57,18 @@ end
     end
     
     
+    mean_image = zeros(dim(1),dim(2));
+    % create mean image from average of 'series'
+    for i = 1:dim(1)
+        for j = 1:dim(2)
+            mean_image(i,j) = mean(series(i,j,:));
+            if isnan(mean_image(i,j))
+                mean_image(i,j) = 0;
+            end
+        end
+    end
+    
+    
     count_sort = zeros(n,3);
     count = 1;
     for i = 1:dim(1)
@@ -90,17 +102,6 @@ end
         series(:,:,count) = series(:,:,count) - bkg(1,count);
     end
     
-    
-    mean_image = zeros(dim(1),dim(2));
-    % create mean image from average of 'series'
-    for i = 1:dim(1)
-        for j = 1:dim(2)
-            mean_image(i,j) = mean(series(i,j,:));
-            if isnan(mean_image(i,j))
-                mean_image(i,j) = 0;
-            end
-        end
-    end
     
     % grow by adjacent
     mask_grow = zeros(n,3);  % space for storing pixels by brightest adj
@@ -239,21 +240,18 @@ end
     end
     
     % all sorts of things, now in .txt form!
+%     
+%     output_data = [time'; aperture(masksize,:);bkg(1,:); xcentroid'; ycentroid';];
+%     filename = strrep(file,'_lpd-targ.fits','');
+%     filename = strrep(filename,'ktwo','/outputs/pipeout_ktwo');
+%     
+%     ID = fopen(filename,'w');
+%     fprintf(ID,'%s %s:%d %s:%d %s %s\n','Time','Flux - Mask',masksize,'Background',bkg_msize,'X Cent','Y Cent');
+%     fprintf(ID,'%8.4f %f %f %f %f\n',output_data);
+%     fclose(ID);
     
-    output_data = [time'; aperture(masksize,:);bkg(1,:); xcentroid'; ycentroid';];
-    filename = strrep(file,'_lpd-targ.fits','');
-    filename = strrep(filename,'ktwo','/outputs/pipeout_ktwo');
-    
-    ID = fopen(filename,'w');
-    fprintf(ID,'%s %s:%d %s:%d %s %s\n','Time','Flux - Mask',masksize,'Background',bkg_msize,'X Cent','Y Cent');
-    fprintf(ID,'%8.4f %f %f %f %f\n',output_data);
-    fclose(ID);
-    
-    %
-    % figure(1)
-    % plot(xcentroid,ycentroid,'.r');
-    % figure(2)
-    % plot(time,xcentroid,'b');
+    figure(1)
+    plot(time,aperture(masksize,:))
     % hold on;
     % plot(time,ycentroid,'g');
     % hold off;
