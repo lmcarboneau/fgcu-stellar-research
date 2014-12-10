@@ -1,6 +1,7 @@
 format long
 
-folder = input('Default folder is Nov_K2OI. Is this correct? (y/n) ','s');
+folder = 0; %input('Default folder is Nov_K2OI. Is this correct? (y/n) ','s');
+% uncomment for folder selection
     if (folder == 'n') | (folder == 'N')
         folder = input('Please specify correct folder name/path: ','s');
     else
@@ -9,15 +10,15 @@ folder = input('Default folder is Nov_K2OI. Is this correct? (y/n) ','s');
     end
 
     % uncommented for loop allows multiple files to be run at once:
-    file = input('full file name:  ','s');
-    file = strcat(folder,'/',file); %
+  %  file = input('full file name:  ','s');
+  %  file = strcat(folder,'/',file); %
 
-%     kplrfiles = dir(folder);
-%   for fileNum = 4:(length(kplrfiles) - 3)
-%         
-%         file = kplrfiles(fileNum).name;
-%         file = strcat(folder,'/',file);
-%         
+     kplrfiles = dir(folder);
+   for fileNum = 4:(length(kplrfiles) - 3)
+         
+         file = kplrfiles(fileNum).name;
+         file = strcat(folder,'/',file);
+         
 
         [time,apdim,n,dim,series,data] = get_k2_data(file);
         
@@ -34,6 +35,6 @@ folder = input('Default folder is Nov_K2OI. Is this correct? (y/n) ','s');
         
         out_to_file(time,aperture,bkg,xcentroid,ycentroid,file,masksize);
         
-        plot(bkg,'color',rand(1,3));
-        hold on
- % end
+%         plot(bkg,'color',rand(1,3));
+%         hold on
+  end
