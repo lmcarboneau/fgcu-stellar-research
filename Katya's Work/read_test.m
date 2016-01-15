@@ -57,16 +57,50 @@ for i = 1:numel(fileNames)
             max_threshold = 23;
             idx = any(noise1(:,2)>=min_threshold & noise1(:,2)<=max_threshold,2);
             HF_noise=mean(noise1(idx));
-          
+                   
             
-            %find highest peak in amplitude spectrum and its frequency
-            [a,b] = max(amplitude);
-                      
-                     
+            %find highest peak in amplitude spectrum and its index
+            [max_amp,max_index] = max(amplitude);
+            max_freq = frequency(max_index);
+
+            Peak_SNR = max_amp/HF_noise;     
             
-            det_stat=sqrt((a-mean(abs(DFT)))/std(abs(DFT(numel(DFT)-100:numel(DFT)))));
             
-            dataFile = 1/frequency(b);
+            if(Peak_SNR > min_SNR) 
+                %Flag as potential variable star
+                Variable = 1;
+                
+                %checks frequency only if variable star
+                if(max_freq>.33 & max_freq < 2)
+                    %if in range,flag as potential EB
+                    EB = 1;
+                else
+                    EB = 0;
+                end
+                
+            else 
+                %Flag as uninteresting
+                Variable = 0;
+                EB=0;
+            end
+   
+            
+            %define range to search for second peak
+            Lower_range = 0.5*max_freq-0.022
+            
+            %0.022 c/d comes from anticipated freq resolution of time series
+            Upper_range = 0.5*max_freq+0.022
+            
+            
+            %--------idx2 = any(noise1(:,2)>=Lower_range & noise1(:,2)<=Upper_range,2);
+            %------=noise1(idx2);
+            
+            %------[max_freq2, max_val2] = max(noise1(:,2)>Lower_range & noise1(:,2)<Upper_range);
+
+            
+            %Extra derek code stuff
+            %det_stat=sqrt((max_amp-mean(abs(DFT)))/std(abs(DFT(numel(DFT)-100:numel(DFT)))));
+            % Period = 1/frequency(max_index);
             
             %Now calculate the statistics we will use to find log g and characterize
             %variability & sort them:
@@ -78,14 +112,12 @@ for i = 1:numel(fileNames)
             Y = fitsFile(:,1);
             [X, Index] = sort(X);
             Y = Y(Index);
-                        
-            %Cumulative frequency:         
-            CumFreq = cumsum(Y);
+            
             sigma = std(counts)/mean_counts;
             
             %Opens the new file and starts appending information to it:
             fileOutHeader = fopen('Matlab_Processed/Star_Data.txt','a');
-            fprintf(fileOutHeader, '%s  %f  %f  %f  %f  %f\n\n', fileNames{i},a, b, sigma);
+            fprintf(fileOutHeader, '%s  %f  %f  %f  %f  %f\n\n', fileNames{i},max_amp, max_freq, sigma);
             fileOutHeader = fclose(fileOutHeader);
             
             %End of operations if files exist.
