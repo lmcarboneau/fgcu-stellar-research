@@ -1,0 +1,17 @@
+Processed_kplr002302092-2009166043257_llc.fits.txt
+Processed_kplr002302092-2009259160929_llc.fits.txt
+Processed_kplr002302092-2009350155506_llc.fits.txt
+Processed_kplr002302092-2010078095331_llc.fits.txt
+Processed_kplr002302092-2010174085026_llc.fits.txt
+Processed_kplr002302092-2010265121752_llc.fits.txt
+Processed_kplr002302092-2010355172524_llc.fits.txt
+Processed_kplr002302092-2011073133259_llc.fits.txt
+Processed_kplr002302092-2011177032512_llc.fits.txt
+Processed_kplr002302092-2011271113734_llc.fits.txt
+Processed_kplr002302092-2012004120508_llc.fits.txt
+Processed_kplr002302092-2012088054726_llc.fits.txt
+Processed_kplr002302092-2012179063303_llc.fits.txt
+Processed_kplr002302092-2012277125453_llc.fits.txt
+Processed_kplr002302092-2013011073258_llc.fits.txt
+Processed_kplr002302092-2013098041711_llc.fits.txt
+Processed_kplr002302092-2013131215648_llc.fits.txt
