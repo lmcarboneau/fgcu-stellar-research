@@ -6,7 +6,7 @@ mkdir 'Matlab_Processed'
 fileNames = importdata(FileNamesFile);
 
 fileOutHeader = fopen('Matlab_Processed/Star_Data.txt','a');
-fprintf(fileOutHeader, '%s\n\n', 'Filename: max_freq, max_val, binary');
+fprintf(fileOutHeader, '%s\n\n', 'Filename:         max_freq,   max_val,    Variable_Star,  Potential_EB,   Visual_Followup');
 fileOutHeader = fclose(fileOutHeader);
 
 %INITIALIZE min_SNR %try 10 to start with
@@ -14,11 +14,11 @@ min_SNR = 10;
 %INITIALIZE relative_amplitude %try 0.25 to start with
 relative_amplitude = 0.25;
 
-
 %Existence check for the files in fileName variable and further processing:
 for i = 1:numel(fileNames)
     exist_check = exist(fileNames{i}, 'file');
-    (i/numel(fileNames))*100
+    disp((i/numel(fileNames))*100)
+    disp('% complete')
     %Operations made if file exists:
     if exist_check ~= 0
               
@@ -116,7 +116,7 @@ for i = 1:numel(fileNames)
             
             %Opens the new file and starts appending information to it:
             fileOutHeader = fopen('Matlab_Processed/Star_Data.txt','a');
-            fprintf(fileOutHeader, '%s  %f  %f  %f  %f  %f\n\n', fileNames{i},max_amp, max_freq, Variable, EB, VF);
+            fprintf(fileOutHeader, '%s  %f  %f  %i  %i  %i\n\n', fileNames{i},max_amp, max_freq, Variable, EB, VF);
             fileOutHeader = fclose(fileOutHeader);
             
             %End of operations if files exist.
