@@ -1,5 +1,5 @@
 function [Output] = read_test(FileNamesFile)
-addpath('002302092')
+addpath('AllEBFiles')
 mkdir 'Matlab_Processed'
 
 %Imports the filenames file:
@@ -18,7 +18,7 @@ relative_amplitude = 0.25;
 %Existence check for the files in fileName variable and further processing:
 for i = 1:numel(fileNames)
     exist_check = exist(fileNames{i}, 'file');
-    
+    (i/numel(fileNames))*100
     %Operations made if file exists:
     if exist_check ~= 0
               
@@ -86,38 +86,37 @@ for i = 1:numel(fileNames)
    
             
             %define range to search for second peak
-            Lower_range = 0.5*max_freq-0.022
+            Lower_range = 0.5*max_freq-0.022;
             
             %0.022 c/d comes from anticipated freq resolution of time series
-            Upper_range = 0.5*max_freq+0.022
+            Upper_range = 0.5*max_freq+0.022;
             
-            
-            %--------idx2 = any(noise1(:,2)>=Lower_range & noise1(:,2)<=Upper_range,2);
-            %------=noise1(idx2);
-            
-            %------[max_freq2, max_val2] = max(noise1(:,2)>Lower_range & noise1(:,2)<Upper_range);
+            %[max_freq2, max_val2] = max(Amplitude(freq>lower_range & freq<upper_range)
+            %gets amplitude and frequency in the correct freq range (between high and low)
+            range = noise1(any(noise1(:,2)>=Lower_range & noise1(:,2)<=Upper_range,2),:);
+            %finds max amplitude in that correct range
+            max_amp2=max(range(:,1));
+            %index for the row with the max amplitude 
+            idx2=range(:,1)==max_amp2;
+            %gets freq value associated with the max amplitude
+            max_freq2=range(idx2,2);
+
 
             
-            %Extra derek code stuff
-            %det_stat=sqrt((max_amp-mean(abs(DFT)))/std(abs(DFT(numel(DFT)-100:numel(DFT)))));
-            % Period = 1/frequency(max_index);
+            %IF ((max_val2/max_val) > relative amplitude) THEN
+            % Flag for visual followup
+            %ENDIF        
+            if (max_amp2/max_amp)  > relative_amplitude
+                %mark for visual follow up
+                VF=1;
+            else 
+                VF=0;
+            end
             
-            %Now calculate the statistics we will use to find log g and characterize
-            %variability & sort them:
-            
-            counts = counts-mean(counts);
-            counts = detrend(counts);
-            
-            X = counts;
-            Y = fitsFile(:,1);
-            [X, Index] = sort(X);
-            Y = Y(Index);
-            
-            sigma = std(counts)/mean_counts;
             
             %Opens the new file and starts appending information to it:
             fileOutHeader = fopen('Matlab_Processed/Star_Data.txt','a');
-            fprintf(fileOutHeader, '%s  %f  %f  %f  %f  %f\n\n', fileNames{i},max_amp, max_freq, sigma);
+            fprintf(fileOutHeader, '%s  %f  %f  %f  %f  %f\n\n', fileNames{i},max_amp, max_freq, Variable, EB, VF);
             fileOutHeader = fclose(fileOutHeader);
             
             %End of operations if files exist.
