@@ -1,12 +1,12 @@
 function [Output] = read_test(FileNamesFile)
-addpath('AllEBFiles')
+addpath('andy_nonEB')
 mkdir 'Matlab_Processed'
 
 %Imports the filenames file:
 fileNames = importdata(FileNamesFile);
 
 fileOutHeader = fopen('Matlab_Processed/Star_Data.txt','a');
-fprintf(fileOutHeader, '%s\n\n', 'Filename:         max_freq,   max_val,    Variable_Star,  Potential_EB,   Visual_Followup');
+fprintf(fileOutHeader, '%s\n\n', 'Filename:         max_amp,   max_freq,    Variable_Star,  Potential_EB,   Visual_Followup');
 fileOutHeader = fclose(fileOutHeader);
 
 %INITIALIZE min_SNR %try 10 to start with
@@ -28,8 +28,12 @@ for i = 1:numel(fileNames)
         for k = 1:14
             fgetl(fileNames_open);
         end
+        
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!       
+%fitsFile = textscan(fileNames_open, '%f,%f,%f,%f,%f,%f');
+%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
 
-        fitsFile = textscan(fileNames_open, '%f,%f,%f,%f,%f,%f');
+        fitsFile = textscan(fileNames_open, '%f,%f,%f');
         fitsFile = cell2mat(fitsFile);
         
         fclose(fileNames_open);
@@ -86,10 +90,11 @@ for i = 1:numel(fileNames)
    
             
             %define range to search for second peak
-            Lower_range = 0.5*max_freq-0.022;
+            %fist trial .022
+            Lower_range = 0.5*max_freq-0.04;
             
             %0.022 c/d comes from anticipated freq resolution of time series
-            Upper_range = 0.5*max_freq+0.022;
+            Upper_range = 0.5*max_freq+0.04;
             
             %[max_freq2, max_val2] = max(Amplitude(freq>lower_range & freq<upper_range)
             %gets amplitude and frequency in the correct freq range (between high and low)

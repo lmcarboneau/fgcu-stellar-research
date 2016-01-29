@@ -11,7 +11,7 @@ format long
     end
 %}
 
-folder = input('Assuming you are Carly on Colossus. Is this correct? (Y/N) ','s');
+folder = input('Assuming you are on Colossus. Is this correct? (Y/N) ','s');
 if (folder == 'n') || (folder == 'N')
     folder = input('Please specify correct folder name/path: ','s');
 else
@@ -55,7 +55,7 @@ kplrfiles = dir(strcat(folder,'/ktwo*'))
 %             num_max = 1;
 %             flag = true;
 %         end
-        [row col] = find(peak_locs);
+        [row, col] = find(peak_locs);
         temp_loc = [row col]';
         bkg = remove_background(apdim,n,count_sort,series,time);
 
