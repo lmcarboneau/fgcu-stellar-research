@@ -1,5 +1,5 @@
 function [Output] = read_test(FileNamesFile)
-addpath('andy_nonEB')
+addpath('AllEBFiles')
 mkdir 'Matlab_Processed'
 
 %Imports the filenames file:
@@ -30,10 +30,10 @@ for i = 1:numel(fileNames)
         end
         
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!       
-%fitsFile = textscan(fileNames_open, '%f,%f,%f,%f,%f,%f');
+fitsFile = textscan(fileNames_open, '%f,%f,%f,%f,%f,%f');
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
 
-        fitsFile = textscan(fileNames_open, '%f,%f,%f');
+        %fitsFile = textscan(fileNames_open, '%f,%f,%f');
         fitsFile = cell2mat(fitsFile);
         
         fclose(fileNames_open);
@@ -73,9 +73,8 @@ for i = 1:numel(fileNames)
             if(Peak_SNR > min_SNR) 
                 %Flag as potential variable star
                 Variable = 1;
-                
                 %checks frequency only if variable star
-                if(max_freq>.33 & max_freq < 2)
+                if(max_freq >.33 & max_freq < 2.5)
                     %if in range,flag as potential EB
                     EB = 1;
                 else
